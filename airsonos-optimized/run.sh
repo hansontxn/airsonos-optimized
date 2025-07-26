@@ -1,77 +1,93 @@
 #!/usr/bin/with-contenv bashio
+
 # ==============================================================================
-# Home Assistant Add-on: AirSonos Optimized
-# Runs the AirSonos Optimized service
+# Home Assistant Community Add-on: AirSonos Optimized
+# Starts the AirSonos service with optimizations
 # ==============================================================================
 
-# Set up logging
-bashio::log.info "Starting AirSonos Optimized..."
+declare timeout
+declare verbose
+declare port
+declare discovery_timeout
+declare max_devices
 
-# Get configuration options
-VERBOSE=$(bashio::config 'verbose')
-TIMEOUT=$(bashio::config 'timeout')
-DISCOVERY_TIMEOUT=$(bashio::config 'discovery_timeout')
-ENABLE_DIAGNOSTICS=$(bashio::config 'enable_diagnostics')
-ENABLE_WEB_INTERFACE=$(bashio::config 'enable_web_interface')
-WEB_PORT=$(bashio::config 'web_port')
-AIRPLAY_PORT=$(bashio::config 'airplay_port')
-BUFFER_SIZE=$(bashio::config 'buffer_size')
-MAX_CONNECTIONS=$(bashio::config 'max_connections')
-ENABLE_PERFORMANCE_MONITORING=$(bashio::config 'enable_performance_monitoring')
-AUTO_DISCOVERY=$(bashio::config 'auto_discovery')
-
-# Log configuration
-bashio::log.info "Configuration:"
-bashio::log.info "  Verbose: ${VERBOSE}"
-bashio::log.info "  Timeout: ${TIMEOUT}s"
-bashio::log.info "  Discovery timeout: ${DISCOVERY_TIMEOUT}s"
-bashio::log.info "  Web interface: ${ENABLE_WEB_INTERFACE} (port ${WEB_PORT})"
-bashio::log.info "  AirPlay port: ${AIRPLAY_PORT}"
-bashio::log.info "  Buffer size: ${BUFFER_SIZE}"
-bashio::log.info "  Max connections: ${MAX_CONNECTIONS}"
+# Get configuration from Home Assistant
+timeout=$(bashio::config 'timeout')
+verbose=$(bashio::config 'verbose')
+port=$(bashio::config 'port')
+discovery_timeout=$(bashio::config 'discovery_timeout')
+max_devices=$(bashio::config 'max_devices')
 
 # Set environment variables
-export NODE_ENV=production
-export AIRSONOS_VERBOSE="${VERBOSE}"
-export AIRSONOS_TIMEOUT="${TIMEOUT}"
-export AIRSONOS_DISCOVERY_TIMEOUT="${DISCOVERY_TIMEOUT}"
-export AIRSONOS_WEB_INTERFACE="${ENABLE_WEB_INTERFACE}"
-export AIRSONOS_WEB_PORT="${WEB_PORT}"
-export AIRSONOS_AIRPLAY_PORT="${AIRPLAY_PORT}"
-export AIRSONOS_BUFFER_SIZE="${BUFFER_SIZE}"
-export AIRSONOS_MAX_CONNECTIONS="${MAX_CONNECTIONS}"
-export AIRSONOS_PERFORMANCE_MONITORING="${ENABLE_PERFORMANCE_MONITORING}"
-export AIRSONOS_AUTO_DISCOVERY="${AUTO_DISCOVERY}"
+export TIMEOUT="${timeout}"
+export VERBOSE="${verbose}"
+export PORT="${port}"
+export DISCOVERY_TIMEOUT="${discovery_timeout}"
+export MAX_DEVICES="${max_devices}"
+export NODE_ENV="production"
 
-# Handle manual devices configuration
-if bashio::config.has_value 'manual_devices'; then
-    MANUAL_DEVICES=$(bashio::config 'manual_devices')
-    export AIRSONOS_MANUAL_DEVICES="${MANUAL_DEVICES}"
-    bashio::log.info "Manual devices configured: $(echo ${MANUAL_DEVICES} | jq length) device(s)"
+# Log configuration
+bashio::log.info "Starting AirSonos Optimized..."
+bashio::log.info "Timeout: ${timeout}s"
+bashio::log.info "Verbose: ${verbose}"
+bashio::log.info "Port: ${port}"
+bashio::log.info "Discovery timeout: ${discovery_timeout}s"
+bashio::log.info "Max devices: ${max_devices}"
+
+# Start Avahi daemon for mDNS
+if ! pgrep avahi-daemon > /dev/null; then
+    bashio::log.info "Starting Avahi daemon..."
+    /usr/sbin/avahi-daemon --daemonize --no-drop-root
 fi
-
-# Start Avahi daemon for device discovery
-bashio::log.info "Starting Avahi daemon for device discovery..."
-avahi-daemon --daemonize --no-chroot
 
 # Wait for Avahi to be ready
 sleep 2
 
-# Start the application
-bashio::log.info "Starting AirSonos Optimized service..."
+# Function to handle shutdown
+shutdown_handler() {
+    bashio::log.info "Shutting down AirSonos..."
+    kill -TERM $AIRSONOS_PID
+    wait $AIRSONOS_PID
+    bashio::log.info "AirSonos stopped"
+    exit 0
+}
+
+# Set up signal handlers
+trap shutdown_handler SIGTERM SIGINT
+
+# Change to app directory
+cd /app
+
+# Start performance monitoring in background if enabled
+if bashio::config.true 'monitoring_enabled'; then
+    bashio::log.info "Starting performance monitoring..."
+    npm run monitor &
+    MONITOR_PID=$!
+fi
+
+# Start the main application
+bashio::log.info "Starting AirSonos service..."
 
 # Build command line arguments
 ARGS=""
-if bashio::var.true "${VERBOSE}"; then
+if [ "${verbose}" = "true" ]; then
     ARGS="${ARGS} --verbose"
 fi
-ARGS="${ARGS} --timeout ${TIMEOUT}"
 
-# Run diagnostics if enabled
-if bashio::var.true "${ENABLE_DIAGNOSTICS}"; then
-    bashio::log.info "Running diagnostics..."
-    node /opt/airsonos/src/optimized_airsonos.js --diagnostics
+if [ -n "${timeout}" ]; then
+    ARGS="${ARGS} --timeout ${timeout}"
 fi
 
-# Start the main service
-exec node /opt/airsonos/src/optimized_airsonos.js ${ARGS}
+# Start AirSonos
+npm start ${ARGS} &
+AIRSONOS_PID=$!
+
+# Wait for the process to complete
+wait $AIRSONOS_PID
+
+# Clean up
+if [ -n "${MONITOR_PID}" ]; then
+    kill $MONITOR_PID 2>/dev/null || true
+fi
+
+bashio::log.info "AirSonos Optimized stopped"

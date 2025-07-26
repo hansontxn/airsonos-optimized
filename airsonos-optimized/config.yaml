@@ -1,52 +1,43 @@
-name: "AirSonos Optimized"
+name: AirSonos Optimized
 version: "0.3.0"
-slug: "airsonos_optimized"
-description: "High-performance AirPlay to Sonos bridge with adaptive buffering and intelligent optimization"
-url: "https://github.com/hansontxn/airsonos-optimized"
-startup: services
-init: false
+slug: airsonos_optimized
+description: "AirTunes to Sonos devices bridge with HACS optimization"
+url: "https://github.com/HansonTan/airsonos-optimized"
+codenotary: "notary@home-assistant.io"
 arch:
-  - amd64
+  - armhf
   - armv7
   - aarch64
-ports:
-  "5000/tcp": 5000
-  "8099/tcp": 8099
-ports_description:
-  "5000/tcp": "AirPlay service port"
-  "8099/tcp": "Web interface and API"
+  - amd64
+  - i386
+startup: application
+boot: auto
+init: false
+map:
+  - "share:rw"
+  - "ssl:ro"
+  - "config:ro"
+options:
+  timeout: 5
+  verbose: false
+  port: 5000
+  discovery_timeout: 10
+  max_devices: 50
+schema:
+  timeout: "int(1,300)?"
+  verbose: "bool?"
+  port: "port?"
+  discovery_timeout: "int(1,60)?"
+  max_devices: "int(1,100)?"
+services:
+  - mqtt:need
 host_network: true
 privileged:
   - NET_ADMIN
-devices:
-  - "/dev/snd"
-options:
-  verbose: false
-  timeout: 5
-  discovery_timeout: 30
-  enable_diagnostics: false
-  enable_web_interface: true
-  web_port: 8099
-  airplay_port: 5000
-  buffer_size: 256
-  max_connections: 10
-  enable_performance_monitoring: false
-  auto_discovery: true
-  manual_devices: []
-schema:
-  verbose: bool
-  timeout: int(1,300)
-  discovery_timeout: int(5,300)
-  enable_diagnostics: bool
-  enable_web_interface: bool
-  web_port: port
-  airplay_port: port
-  buffer_size: int(64,2048)
-  max_connections: int(1,50)
-  enable_performance_monitoring: bool
-  auto_discovery: bool
-  manual_devices:
-    - name: str
-      ip: str
-      port: port?
-image: "ghcr.io/hansontxn/airsonos-optimized"
+  - NET_RAW
+environment:
+  LOG_LEVEL: info
+  NODE_ENV: production
+  DISCOVERY_TIMEOUT: 10
+  MAX_DEVICES: 50
+audio: true
