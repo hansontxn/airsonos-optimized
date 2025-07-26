@@ -1,0 +1,470 @@
+{
+  "schema": {
+    "basic_settings": {
+      "type": "object",
+      "title": "Basic Settings",
+      "properties": {
+        "timeout": {
+          "type": "integer",
+          "title": "Connection Timeout",
+          "description": "Timeout for device connections in seconds",
+          "default": 5,
+          "minimum": 1,
+          "maximum": 60
+        },
+        "verbose": {
+          "type": "boolean",
+          "title": "Verbose Logging",
+          "description": "Enable detailed logging for troubleshooting",
+          "default": false
+        },
+        "port": {
+          "type": "integer",
+          "title": "Service Port",
+          "description": "Port for the AirPlay service",
+          "default": 5000,
+          "minimum": 1024,
+          "maximum": 65535
+        },
+        "discovery_timeout": {
+          "type": "integer",
+          "title": "Device Discovery Timeout",
+          "description": "Timeout for automatic device discovery in seconds",
+          "default": 10,
+          "minimum": 5,
+          "maximum": 60
+        },
+        "max_devices": {
+          "type": "integer",
+          "title": "Maximum Devices",
+          "description": "Maximum number of Sonos devices to manage",
+          "default": 50,
+          "minimum": 1,
+          "maximum": 100
+        }
+      }
+    },
+    "audio_settings": {
+      "type": "object",
+      "title": "Audio Settings",
+      "properties": {
+        "adaptive_buffering": {
+          "type": "boolean",
+          "title": "Adaptive Buffering",
+          "description": "Automatically adjust buffer size based on network conditions",
+          "default": true
+        },
+        "min_buffer_size": {
+          "type": "integer",
+          "title": "Minimum Buffer Size (ms)",
+          "description": "Minimum audio buffer size in milliseconds",
+          "default": 200,
+          "minimum": 50,
+          "maximum": 1000
+        },
+        "max_buffer_size": {
+          "type": "integer",
+          "title": "Maximum Buffer Size (ms)",
+          "description": "Maximum audio buffer size in milliseconds",
+          "default": 500,
+          "minimum": 100,
+          "maximum": 2000
+        },
+        "enable_alac": {
+          "type": "boolean",
+          "title": "Enable ALAC",
+          "description": "Enable Apple Lossless Audio Codec support",
+          "default": true
+        },
+        "smart_format_detection": {
+          "type": "boolean",
+          "title": "Smart Format Detection",
+          "description": "Automatically detect and optimize audio formats",
+          "default": true
+        }
+      }
+    },
+    "performance_settings": {
+      "type": "object",
+      "title": "Performance Settings",
+      "properties": {
+        "enable_worker_threads": {
+          "type": "boolean",
+          "title": "Enable Worker Threads",
+          "description": "Use worker threads for audio processing (recommended)",
+          "default": true
+        },
+        "max_workers": {
+          "type": "integer",
+          "title": "Maximum Worker Threads",
+          "description": "Maximum number of worker threads (0 = auto-detect)",
+          "default": 0,
+          "minimum": 0,
+          "maximum": 16
+        },
+        "config_mode": {
+          "type": "string",
+          "title": "Configuration Mode",
+          "description": "How to optimize settings",
+          "default": "auto",
+          "enum": ["auto", "easy", "advanced"],
+          "enumNames": ["Auto-optimize", "Easy mode", "Advanced mode"]
+        },
+        "network_buffer_size": {
+          "type": "integer",
+          "title": "Network Buffer Size (KB)",
+          "description": "Network buffer size in kilobytes",
+          "default": 64,
+          "minimum": 16,
+          "maximum": 512
+        },
+        "backpressure_threshold": {
+          "type": "number",
+          "title": "Backpressure Threshold",
+          "description": "Network backpressure threshold (0.0-1.0)",
+          "default": 0.8,
+          "minimum": 0.1,
+          "maximum": 1.0,
+          "multipleOf": 0.1
+        }
+      }
+    },
+    "health_monitoring": {
+      "type": "object",
+      "title": "Health Monitoring",
+      "properties": {
+        "health_check_interval": {
+          "type": "integer",
+          "title": "Health Check Interval (ms)",
+          "description": "Interval between health checks in milliseconds",
+          "default": 30000,
+          "minimum": 5000,
+          "maximum": 300000
+        },
+        "adaptive_ping_interval": {
+          "type": "boolean",
+          "title": "Adaptive Ping Intervals",
+          "description": "Automatically adjust ping frequency based on device response",
+          "default": true
+        },
+        "min_ping_interval": {
+          "type": "integer",
+          "title": "Minimum Ping Interval (ms)",
+          "description": "Minimum time between device pings",
+          "default": 5000,
+          "minimum": 1000,
+          "maximum": 30000
+        },
+        "max_ping_interval": {
+          "type": "integer",
+          "title": "Maximum Ping Interval (ms)",
+          "description": "Maximum time between device pings",
+          "default": 60000,
+          "minimum": 10000,
+          "maximum": 300000
+        }
+      }
+    },
+    "manual_devices": {
+      "type": "array",
+      "title": "Manual Device Configuration",
+      "description": "Manually configure specific Sonos devices",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Device Name",
+            "description": "Custom name for this device"
+          },
+          "host": {
+            "type": "string",
+            "title": "IP Address",
+            "description": "IP address of the Sonos device",
+            "format": "ipv4"
+          },
+          "port": {
+            "type": "integer",
+            "title": "Port",
+            "description": "Port number (usually 1400)",
+            "default": 1400,
+            "minimum": 1,
+            "maximum": 65535
+          },
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled",
+            "description": "Enable this device",
+            "default": true
+          }
+        },
+        "required": ["host"]
+      }
+    },
+    "integration_settings": {
+      "type": "object",
+      "title": "Home Assistant Integration",
+      "properties": {
+        "enable_dashboard": {
+          "type": "boolean",
+          "title": "Enable Dashboard",
+          "description": "Automatically create dashboard widgets",
+          "default": true
+        },
+        "enable_notifications": {
+          "type": "boolean",
+          "title": "Enable Notifications",
+          "description": "Send notifications for device events",
+          "default": true
+        },
+        "notification_level": {
+          "type": "string",
+          "title": "Notification Level",
+          "description": "Minimum level for notifications",
+          "default": "info",
+          "enum": ["info", "warning", "error"],
+          "enumNames": ["Info", "Warning", "Error only"]
+        },
+        "update_interval": {
+          "type": "integer",
+          "title": "Update Interval (seconds)",
+          "description": "How often to update HA entities",
+          "default": 30,
+          "minimum": 5,
+          "maximum": 300
+        },
+        "websocket_port": {
+          "type": "integer",
+          "title": "WebSocket Port",
+          "description": "Port for real-time communication with HA",
+          "default": 8099,
+          "minimum": 1024,
+          "maximum": 65535
+        }
+      }
+    },
+    "advanced_settings": {
+      "type": "object",
+      "title": "Advanced Settings",
+      "description": "Advanced configuration options for expert users",
+      "properties": {
+        "debug_mode": {
+          "type": "boolean",
+          "title": "Debug Mode",
+          "description": "Enable debug mode with extensive logging",
+          "default": false
+        },
+        "performance_monitoring": {
+          "type": "boolean",
+          "title": "Performance Monitoring",
+          "description": "Enable detailed performance monitoring",
+          "default": true
+        },
+        "custom_airplay_name": {
+          "type": "string",
+          "title": "Custom AirPlay Name",
+          "description": "Custom name for AirPlay services (leave empty for auto)",
+          "default": ""
+        },
+        "force_format": {
+          "type": "string",
+          "title": "Force Audio Format",
+          "description": "Force a specific audio format",
+          "default": "auto",
+          "enum": ["auto", "pcm", "alac", "aac"],
+          "enumNames": ["Auto-detect", "PCM", "ALAC", "AAC"]
+        },
+        "experimental_features": {
+          "type": "boolean",
+          "title": "Experimental Features",
+          "description": "Enable experimental features (may be unstable)",
+          "default": false
+        }
+      }
+    }
+  },
+  "form": [
+    {
+      "type": "tabs",
+      "tabs": [
+        {
+          "title": "Basic",
+          "items": [
+            {
+              "key": "basic_settings",
+              "type": "section",
+              "items": [
+                "basic_settings.timeout",
+                "basic_settings.verbose",
+                "basic_settings.port",
+                "basic_settings.discovery_timeout",
+                "basic_settings.max_devices"
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Audio",
+          "items": [
+            {
+              "key": "audio_settings",
+              "type": "section",
+              "items": [
+                "audio_settings.adaptive_buffering",
+                {
+                  "key": "audio_settings.min_buffer_size",
+                  "condition": "model.audio_settings.adaptive_buffering"
+                },
+                {
+                  "key": "audio_settings.max_buffer_size",
+                  "condition": "model.audio_settings.adaptive_buffering"
+                },
+                "audio_settings.enable_alac",
+                "audio_settings.smart_format_detection"
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Performance",
+          "items": [
+            {
+              "key": "performance_settings",
+              "type": "section",
+              "items": [
+                "performance_settings.config_mode",
+                "performance_settings.enable_worker_threads",
+                {
+                  "key": "performance_settings.max_workers",
+                  "condition": "model.performance_settings.enable_worker_threads"
+                },
+                "performance_settings.network_buffer_size",
+                "performance_settings.backpressure_threshold"
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Monitoring",
+          "items": [
+            {
+              "key": "health_monitoring",
+              "type": "section",
+              "items": [
+                "health_monitoring.health_check_interval",
+                "health_monitoring.adaptive_ping_interval",
+                {
+                  "key": "health_monitoring.min_ping_interval",
+                  "condition": "model.health_monitoring.adaptive_ping_interval"
+                },
+                {
+                  "key": "health_monitoring.max_ping_interval",
+                  "condition": "model.health_monitoring.adaptive_ping_interval"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Devices",
+          "items": [
+            {
+              "key": "manual_devices",
+              "type": "array",
+              "items": [
+                {
+                  "type": "section",
+                  "items": [
+                    "manual_devices[].name",
+                    "manual_devices[].host",
+                    "manual_devices[].port",
+                    "manual_devices[].enabled"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Integration",
+          "items": [
+            {
+              "key": "integration_settings",
+              "type": "section",
+              "items": [
+                "integration_settings.enable_dashboard",
+                "integration_settings.enable_notifications",
+                {
+                  "key": "integration_settings.notification_level",
+                  "condition": "model.integration_settings.enable_notifications"
+                },
+                "integration_settings.update_interval",
+                "integration_settings.websocket_port"
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Advanced",
+          "items": [
+            {
+              "key": "advanced_settings",
+              "type": "section",
+              "items": [
+                "advanced_settings.debug_mode",
+                "advanced_settings.performance_monitoring",
+                "advanced_settings.custom_airplay_name",
+                "advanced_settings.force_format",
+                "advanced_settings.experimental_features"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "options": {
+    "basic_settings": {
+      "timeout": 5,
+      "verbose": false,
+      "port": 5000,
+      "discovery_timeout": 10,
+      "max_devices": 50
+    },
+    "audio_settings": {
+      "adaptive_buffering": true,
+      "min_buffer_size": 200,
+      "max_buffer_size": 500,
+      "enable_alac": true,
+      "smart_format_detection": true
+    },
+    "performance_settings": {
+      "enable_worker_threads": true,
+      "max_workers": 0,
+      "config_mode": "auto",
+      "network_buffer_size": 64,
+      "backpressure_threshold": 0.8
+    },
+    "health_monitoring": {
+      "health_check_interval": 30000,
+      "adaptive_ping_interval": true,
+      "min_ping_interval": 5000,
+      "max_ping_interval": 60000
+    },
+    "manual_devices": [],
+    "integration_settings": {
+      "enable_dashboard": true,
+      "enable_notifications": true,
+      "notification_level": "info",
+      "update_interval": 30,
+      "websocket_port": 8099
+    },
+    "advanced_settings": {
+      "debug_mode": false,
+      "performance_monitoring": true,
+      "custom_airplay_name": "",
+      "force_format": "auto",
+      "experimental_features": false
+    }
+  }
+}

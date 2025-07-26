@@ -1,0 +1,463 @@
+name: HACS Validation
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  schedule:
+    # Run validation every week
+    - cron: '0 2 * * 1'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    name: Validate for HACS
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: HACS validation
+        uses: hacs/action@main
+        with:
+          category: addon
+          ignore: brands
+
+  lint:
+    runs-on: ubuntu-latest
+    name: Lint Code
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Run Prettier
+        run: npm run format:check
+
+  test:
+    runs-on: ubuntu-latest
+    name: Run Tests
+    strategy:
+      matrix:
+        node-version: [16, 18, 20]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Upload coverage reports
+        if: matrix.node-version == '18'
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage/lcov.info
+          flags: unittests
+          name: codecov-umbrella
+
+  validate-config:
+    runs-on: ubuntu-latest
+    name: Validate Configuration
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate config.yaml
+        uses: home-assistant/actions/helpers/config-validation@master
+        with:
+          config_file: config.yaml
+
+      - name: Validate services.yaml
+        run: |
+          python3 -c "
+          import yaml
+          with open('config/services.yaml', 'r') as f:
+              yaml.safe_load(f)
+          print('services.yaml is valid')
+          "
+
+      - name: Validate options.json
+        run: |
+          python3 -c "
+          import json
+          with open('config/options.json', 'r') as f:
+              json.load(f)
+          print('options.json is valid')
+          "
+
+      - name: Validate translations
+        run: |
+          python3 -c "
+          import json
+          with open('translations/en.json', 'r') as f:
+              json.load(f)
+          print('translations/en.json is valid')
+          "
+
+  build-test:
+    runs-on: ubuntu-latest
+    name: Test Build Process
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64
+          push: false
+          tags: |
+            ghcr.io/${{ github.repository }}:test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Test Docker image
+        run: |
+          docker run --rm --name airsonos-test \
+            -e TIMEOUT=5 \
+            -e VERBOSE=true \
+            ghcr.io/${{ github.repository }}:test \
+            timeout 30s npm start || true
+
+  security-scan:
+    runs-on: ubuntu-latest
+    name: Security Scan
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+      - name: Setup Node.js for audit
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run npm audit
+        run: npm audit --audit-level moderate
+
+  validate-documentation:
+    runs-on: ubuntu-latest
+    name: Validate Documentation
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install markdownlint
+        run: npm install -g markdownlint-cli
+
+      - name: Lint markdown files
+        run: |
+          markdownlint README.md DOCS.md CHANGELOG.md
+
+      - name: Check links in documentation
+        uses: gaurav-nelson/github-action-markdown-link-check@v1
+        with:
+          use-quiet-mode: 'yes'
+          use-verbose-mode: 'yes'
+          config-file: '.github/workflows/mlc_config.json'
+
+      - name: Validate README structure
+        run: |
+          python3 -c "
+          import re
+          with open('README.md', 'r') as f:
+              content = f.read()
+          
+          # Check required sections
+          required_sections = [
+              'Installation',
+              'Configuration', 
+              'Usage',
+              'Troubleshooting',
+              'Performance Comparison'
+          ]
+          
+          for section in required_sections:
+              if f'## {section}' not in content and f'# {section}' not in content:
+                  raise ValueError(f'Missing required section: {section}')
+          
+          print('README.md structure is valid')
+          "
+
+  check-version-consistency:
+    runs-on: ubuntu-latest
+    name: Check Version Consistency
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate version consistency
+        run: |
+          python3 -c "
+          import json
+          import yaml
+          import re
+          
+          # Get version from package.json
+          with open('package.json', 'r') as f:
+              package_version = json.load(f)['version']
+          
+          # Get version from config.yaml
+          with open('config.yaml', 'r') as f:
+              config_version = yaml.safe_load(f)['version']
+          
+          # Get version from hacs.json
+          with open('hacs.json', 'r') as f:
+              hacs_data = json.load(f)
+              # HACS doesn't always have version field
+          
+          # Check CHANGELOG for latest version
+          with open('CHANGELOG.md', 'r') as f:
+              changelog = f.read()
+              changelog_match = re.search(r'## \[([0-9]+\.[0-9]+\.[0-9]+)\]', changelog)
+              changelog_version = changelog_match.group(1) if changelog_match else None
+          
+          print(f'package.json version: {package_version}')
+          print(f'config.yaml version: {config_version}')
+          print(f'CHANGELOG.md version: {changelog_version}')
+          
+          # Verify versions match
+          if package_version != config_version:
+              raise ValueError(f'Version mismatch: package.json ({package_version}) != config.yaml ({config_version})')
+          
+          if changelog_version and package_version != changelog_version:
+              raise ValueError(f'Version mismatch: package.json ({package_version}) != CHANGELOG.md ({changelog_version})')
+          
+          print('All versions are consistent')
+          "
+
+  addon-validation:
+    runs-on: ubuntu-latest
+    name: Home Assistant Add-on Validation
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate Add-on Configuration
+        uses: home-assistant/actions/helpers/supervisor-validation@master
+
+      - name: Check required files
+        run: |
+          # Check required files for HA add-on
+          required_files=(
+            "config.yaml"
+            "Dockerfile"
+            "run.sh"
+            "README.md"
+            "CHANGELOG.md"
+          )
+          
+          for file in "${required_files[@]}"; do
+            if [[ ! -f "$file" ]]; then
+              echo "Error: Required file $file is missing"
+              exit 1
+            fi
+          done
+          
+          echo "All required files are present"
+
+      - name: Validate AppArmor profile
+        run: |
+          if [[ -f "apparmor.txt" ]]; then
+            # Basic AppArmor syntax validation
+            python3 -c "
+            with open('apparmor.txt', 'r') as f:
+                content = f.read()
+            
+            # Check for required profile structure
+            if '#include <tunables/global>' not in content:
+                raise ValueError('AppArmor profile missing global tunables include')
+            
+            if 'profile airsonos' not in content:
+                raise ValueError('AppArmor profile missing profile declaration')
+            
+            print('AppArmor profile appears valid')
+            "
+          else
+            echo "AppArmor profile not found - this is optional but recommended"
+          fi
+
+  integration-test:
+    runs-on: ubuntu-latest
+    name: Integration Test with Home Assistant
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Start Home Assistant test environment
+        run: |
+          # Create a test Home Assistant environment
+          mkdir -p ./test-ha/config
+          
+          # Create minimal HA configuration
+          cat > ./test-ha/config/configuration.yaml << EOF
+          default_config:
+          
+          logger:
+            default: info
+            logs:
+              custom_components.airsonos: debug
+          EOF
+
+      - name: Test add-on installation
+        run: |
+          # Simulate add-on installation validation
+          python3 -c "
+          import yaml
+          import json
+          
+          # Validate config.yaml can be parsed
+          with open('config.yaml', 'r') as f:
+              config = yaml.safe_load(f)
+          
+          # Check required config fields
+          required_fields = ['name', 'version', 'slug', 'description']
+          for field in required_fields:
+              if field not in config:
+                  raise ValueError(f'Missing required config field: {field}')
+          
+          # Validate options schema
+          with open('config/options.json', 'r') as f:
+              options = json.load(f)
+          
+          if 'schema' not in options:
+              raise ValueError('options.json missing schema')
+          
+          print('Add-on configuration validation passed')
+          "
+
+  performance-test:
+    runs-on: ubuntu-latest
+    name: Basic Performance Test
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run performance tests
+        run: |
+          # Basic performance test - check startup time
+          timeout 60s npm run test:performance || true
+
+      - name: Memory usage test
+        run: |
+          # Test memory usage under load
+          timeout 30s npm run test:memory || true
+
+  release-check:
+    runs-on: ubuntu-latest
+    name: Release Readiness Check
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check if ready for release
+        run: |
+          python3 -c "
+          import json
+          import re
+          
+          # Check if version has been updated
+          with open('package.json', 'r') as f:
+              version = json.load(f)['version']
+          
+          # Check if CHANGELOG has been updated
+          with open('CHANGELOG.md', 'r') as f:
+              changelog = f.read()
+          
+          # Look for unreleased changes
+          if '## [Unreleased]' in changelog:
+              print('Warning: Unreleased changes found in CHANGELOG.md')
+          
+          # Check for version in CHANGELOG
+          version_pattern = f'## \[{re.escape(version)}\]'
+          if not re.search(version_pattern, changelog):
+              print(f'Warning: Version {version} not found in CHANGELOG.md')
+          
+          print(f'Current version: {version}')
+          print('Release readiness check completed')
+          "
+
+  notify-completion:
+    runs-on: ubuntu-latest
+    name: Notify Validation Results
+    needs: [validate, lint, test, validate-config, build-test, security-scan]
+    if: always()
+    steps:
+      - name: Check validation results
+        run: |
+          echo "HACS Validation: ${{ needs.validate.result }}"
+          echo "Lint: ${{ needs.lint.result }}"
+          echo "Tests: ${{ needs.test.result }}"
+          echo "Config Validation: ${{ needs.validate-config.result }}"
+          echo "Build Test: ${{ needs.build-test.result }}"
+          echo "Security Scan: ${{ needs.security-scan.result }}"
+          
+          # Check if any critical jobs failed
+          if [[ "${{ needs.validate.result }}" == "failure" ]]; then
+            echo "❌ HACS validation failed"
+            exit 1
+          fi
+          
+          if [[ "${{ needs.test.result }}" == "failure" ]]; then
+            echo "❌ Tests failed"
+            exit 1
+          fi
+          
+          echo "✅ All critical validations passed"

@@ -1,0 +1,289 @@
+restart:
+  name: Restart AirSonos Service
+  description: Restart the AirSonos service
+  target:
+    entity:
+      domain: airsonos
+  fields:
+    force:
+      name: Force Restart
+      description: Force restart even if streams are active
+      required: false
+      default: false
+      selector:
+        boolean:
+
+scan_devices:
+  name: Scan for Devices
+  description: Scan for new Sonos devices on the network
+  target:
+    entity:
+      domain: airsonos
+  fields:
+    timeout:
+      name: Scan Timeout
+      description: Timeout for device scan in seconds
+      required: false
+      default: 10
+      selector:
+        number:
+          min: 5
+          max: 60
+          unit_of_measurement: seconds
+
+configure_device:
+  name: Configure Device
+  description: Add or configure a specific Sonos device
+  target:
+    entity:
+      domain: airsonos
+  fields:
+    host:
+      name: Device IP Address
+      description: IP address of the Sonos device
+      required: true
+      example: "192.168.1.100"
+      selector:
+        text:
+    port:
+      name: Device Port
+      description: Port number of the Sonos device
+      required: false
+      default: 1400
+      selector:
+        number:
+          min: 1
+          max: 65535
+    name:
+      name: Device Name
+      description: Custom name for the device
+      required: false
+      example: "Living Room Sonos"
+      selector:
+        text:
+
+update_buffer_settings:
+  name: Update Buffer Settings
+  description: Update audio buffering configuration
+  target:
+    entity:
+      domain: airsonos
+  fields:
+    min_buffer:
+      name: Minimum Buffer Size
+      description: Minimum buffer size in milliseconds
+      required: false
+      selector:
+        number:
+          min: 50
+          max: 1000
+          unit_of_measurement: ms
+    max_buffer:
+      name: Maximum Buffer Size
+      description: Maximum buffer size in milliseconds
+      required: false
+      selector:
+        number:
+          min: 100
+          max: 2000
+          unit_of_measurement: ms
+    adaptive:
+      name: Adaptive Buffering
+      description: Enable adaptive buffer size adjustment
+      required: false
+      selector:
+        boolean:
+
+toggle_worker_threads:
+  name: Toggle Worker Threads
+  description: Enable or disable worker thread audio processing
+  target:
+    entity:
+      domain: airsonos
+  fields:
+    enabled:
+      name: Enable Worker Threads
+      description: Whether to enable worker thread processing
+      required: true
+      default: true
+      selector:
+        boolean:
+    max_workers:
+      name: Maximum Workers
+      description: Maximum number of worker threads (0 for auto-detect)
+      required: false
+      default: 0
+      selector:
+        number:
+          min: 0
+          max: 16
+
+update_health_monitoring:
+  name: Update Health Monitoring
+  description: Update health monitoring settings
+  target:
+    entity:
+      domain: airsonos
+  fields:
+    health_check_interval:
+      name: Health Check Interval
+      description: Interval between health checks in milliseconds
+      required: false
+      selector:
+        number:
+          min: 5000
+          max: 300000
+          unit_of_measurement: ms
+    adaptive_ping:
+      name: Adaptive Ping Intervals
+      description: Automatically adjust ping frequency based on device response
+      required: false
+      selector:
+        boolean:
+    min_ping_interval:
+      name: Minimum Ping Interval
+      description: Minimum time between device pings in milliseconds
+      required: false
+      selector:
+        number:
+          min: 1000
+          max: 30000
+          unit_of_measurement: ms
+    max_ping_interval:
+      name: Maximum Ping Interval
+      description: Maximum time between device pings in milliseconds
+      required: false
+      selector:
+        number:
+          min: 10000
+          max: 300000
+          unit_of_measurement: ms
+
+reset_statistics:
+  name: Reset Statistics
+  description: Reset performance statistics and counters
+  target:
+    entity:
+      domain: airsonos
+
+get_device_info:
+  name: Get Device Information
+  description: Get detailed information about connected devices
+  target:
+    entity:
+      domain: airsonos
+  fields:
+    device_host:
+      name: Device Host
+      description: IP address of specific device (optional, all devices if empty)
+      required: false
+      selector:
+        text:
+
+force_device_reconnect:
+  name: Force Device Reconnect
+  description: Force reconnection to a specific device
+  target:
+    entity:
+      domain: airsonos
+  fields:
+    device_host:
+      name: Device Host
+      description: IP address of the device to reconnect
+      required: true
+      selector:
+        text:
+
+update_audio_settings:
+  name: Update Audio Settings
+  description: Update audio processing settings
+  target:
+    entity:
+      domain: airsonos
+  fields:
+    enable_alac:
+      name: Enable ALAC
+      description: Enable Apple Lossless Audio Codec support
+      required: false
+      selector:
+        boolean:
+    smart_format_detection:
+      name: Smart Format Detection
+      description: Enable automatic audio format detection
+      required: false
+      selector:
+        boolean:
+    force_format:
+      name: Force Audio Format
+      description: Force a specific audio format
+      required: false
+      selector:
+        select:
+          options:
+            - label: "Auto-detect"
+              value: "auto"
+            - label: "PCM"
+              value: "pcm"
+            - label: "ALAC"
+              value: "alac"
+            - label: "AAC"
+              value: "aac"
+
+export_configuration:
+  name: Export Configuration
+  description: Export current configuration for backup
+  target:
+    entity:
+      domain: airsonos
+
+import_configuration:
+  name: Import Configuration
+  description: Import configuration from backup
+  target:
+    entity:
+      domain: airsonos
+  fields:
+    config_data:
+      name: Configuration Data
+      description: JSON configuration data to import
+      required: true
+      selector:
+        text:
+          multiline: true
+
+set_debug_mode:
+  name: Set Debug Mode
+  description: Enable or disable debug mode
+  target:
+    entity:
+      domain: airsonos
+  fields:
+    enabled:
+      name: Enable Debug Mode
+      description: Whether to enable debug mode
+      required: true
+      default: false
+      selector:
+        boolean:
+
+generate_report:
+  name: Generate Diagnostic Report
+  description: Generate a diagnostic report for troubleshooting
+  target:
+    entity:
+      domain: airsonos
+  fields:
+    include_logs:
+      name: Include Logs
+      description: Include recent log entries in the report
+      required: false
+      default: true
+      selector:
+        boolean:
+    include_performance:
+      name: Include Performance Data
+      description: Include performance metrics in the report
+      required: false
+      default: true
+      selector:
+        boolean:
