@@ -1,0 +1,389 @@
+{
+  "config": {
+    "title": "AirSonos Optimized",
+    "description": "AirTunes to Sonos devices bridge with HACS optimization",
+    "data": {
+      "basic_settings": "Basic Settings",
+      "audio_settings": "Audio Settings", 
+      "performance_settings": "Performance Settings",
+      "health_monitoring": "Health Monitoring",
+      "manual_devices": "Manual Device Configuration",
+      "integration_settings": "Home Assistant Integration",
+      "advanced_settings": "Advanced Settings"
+    },
+    "data_description": {
+      "timeout": "Timeout for device connections in seconds",
+      "verbose": "Enable detailed logging for troubleshooting",
+      "port": "Port for the AirPlay service",
+      "discovery_timeout": "Timeout for automatic device discovery in seconds",
+      "max_devices": "Maximum number of Sonos devices to manage",
+      "adaptive_buffering": "Automatically adjust buffer size based on network conditions",
+      "min_buffer_size": "Minimum audio buffer size in milliseconds",
+      "max_buffer_size": "Maximum audio buffer size in milliseconds",
+      "enable_alac": "Enable Apple Lossless Audio Codec support",
+      "smart_format_detection": "Automatically detect and optimize audio formats",
+      "enable_worker_threads": "Use worker threads for audio processing (recommended)",
+      "max_workers": "Maximum number of worker threads (0 = auto-detect)",
+      "config_mode": "How to optimize settings",
+      "network_buffer_size": "Network buffer size in kilobytes",
+      "backpressure_threshold": "Network backpressure threshold (0.0-1.0)",
+      "health_check_interval": "Interval between health checks in milliseconds",
+      "adaptive_ping_interval": "Automatically adjust ping frequency based on device response",
+      "min_ping_interval": "Minimum time between device pings",
+      "max_ping_interval": "Maximum time between device pings",
+      "enable_dashboard": "Automatically create dashboard widgets",
+      "enable_notifications": "Send notifications for device events",
+      "notification_level": "Minimum level for notifications",
+      "update_interval": "How often to update HA entities",
+      "websocket_port": "Port for real-time communication with HA",
+      "debug_mode": "Enable debug mode with extensive logging",
+      "performance_monitoring": "Enable detailed performance monitoring",
+      "custom_airplay_name": "Custom name for AirPlay services (leave empty for auto)",
+      "force_format": "Force a specific audio format",
+      "experimental_features": "Enable experimental features (may be unstable)"
+    },
+    "options": {
+      "config_mode": {
+        "auto": "Auto-optimize",
+        "easy": "Easy mode", 
+        "advanced": "Advanced mode"
+      },
+      "notification_level": {
+        "info": "Info",
+        "warning": "Warning",
+        "error": "Error only"
+      },
+      "force_format": {
+        "auto": "Auto-detect",
+        "pcm": "PCM",
+        "alac": "ALAC",
+        "aac": "AAC"
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "AirSonos Optimized Configuration",
+        "description": "Configure your AirSonos optimized settings",
+        "data": {
+          "timeout": "Connection Timeout (seconds)",
+          "verbose": "Verbose Logging",
+          "port": "Service Port",
+          "discovery_timeout": "Device Discovery Timeout (seconds)",
+          "max_devices": "Maximum Devices",
+          "adaptive_buffering": "Adaptive Buffering",
+          "min_buffer_size": "Minimum Buffer Size (ms)",
+          "max_buffer_size": "Maximum Buffer Size (ms)",
+          "enable_alac": "Enable ALAC",
+          "smart_format_detection": "Smart Format Detection",
+          "enable_worker_threads": "Enable Worker Threads",
+          "max_workers": "Maximum Worker Threads",
+          "config_mode": "Configuration Mode",
+          "network_buffer_size": "Network Buffer Size (KB)",
+          "backpressure_threshold": "Backpressure Threshold",
+          "health_check_interval": "Health Check Interval (ms)",
+          "adaptive_ping_interval": "Adaptive Ping Intervals",
+          "min_ping_interval": "Minimum Ping Interval (ms)",
+          "max_ping_interval": "Maximum Ping Interval (ms)",
+          "enable_dashboard": "Enable Dashboard",
+          "enable_notifications": "Enable Notifications",
+          "notification_level": "Notification Level",
+          "update_interval": "Update Interval (seconds)",
+          "websocket_port": "WebSocket Port",
+          "debug_mode": "Debug Mode",
+          "performance_monitoring": "Performance Monitoring",
+          "custom_airplay_name": "Custom AirPlay Name",
+          "force_format": "Force Audio Format",
+          "experimental_features": "Experimental Features"
+        }
+      }
+    }
+  },
+  "services": {
+    "restart": {
+      "name": "Restart AirSonos Service",
+      "description": "Restart the AirSonos service",
+      "fields": {
+        "force": {
+          "name": "Force Restart",
+          "description": "Force restart even if streams are active"
+        }
+      }
+    },
+    "scan_devices": {
+      "name": "Scan for Devices", 
+      "description": "Scan for new Sonos devices on the network",
+      "fields": {
+        "timeout": {
+          "name": "Scan Timeout",
+          "description": "Timeout for device scan in seconds"
+        }
+      }
+    },
+    "configure_device": {
+      "name": "Configure Device",
+      "description": "Add or configure a specific Sonos device",
+      "fields": {
+        "host": {
+          "name": "Device IP Address",
+          "description": "IP address of the Sonos device"
+        },
+        "port": {
+          "name": "Device Port", 
+          "description": "Port number of the Sonos device"
+        },
+        "name": {
+          "name": "Device Name",
+          "description": "Custom name for the device"
+        }
+      }
+    },
+    "update_buffer_settings": {
+      "name": "Update Buffer Settings",
+      "description": "Update audio buffering configuration",
+      "fields": {
+        "min_buffer": {
+          "name": "Minimum Buffer Size",
+          "description": "Minimum buffer size in milliseconds"
+        },
+        "max_buffer": {
+          "name": "Maximum Buffer Size", 
+          "description": "Maximum buffer size in milliseconds"
+        },
+        "adaptive": {
+          "name": "Adaptive Buffering",
+          "description": "Enable adaptive buffer size adjustment"
+        }
+      }
+    },
+    "toggle_worker_threads": {
+      "name": "Toggle Worker Threads",
+      "description": "Enable or disable worker thread audio processing",
+      "fields": {
+        "enabled": {
+          "name": "Enable Worker Threads",
+          "description": "Whether to enable worker thread processing"
+        },
+        "max_workers": {
+          "name": "Maximum Workers",
+          "description": "Maximum number of worker threads (0 for auto-detect)"
+        }
+      }
+    },
+    "update_health_monitoring": {
+      "name": "Update Health Monitoring",
+      "description": "Update health monitoring settings",
+      "fields": {
+        "health_check_interval": {
+          "name": "Health Check Interval",
+          "description": "Interval between health checks in milliseconds"
+        },
+        "adaptive_ping": {
+          "name": "Adaptive Ping Intervals",
+          "description": "Automatically adjust ping frequency based on device response"
+        },
+        "min_ping_interval": {
+          "name": "Minimum Ping Interval",
+          "description": "Minimum time between device pings in milliseconds"
+        },
+        "max_ping_interval": {
+          "name": "Maximum Ping Interval",
+          "description": "Maximum time between device pings in milliseconds"
+        }
+      }
+    },
+    "reset_statistics": {
+      "name": "Reset Statistics",
+      "description": "Reset performance statistics and counters"
+    },
+    "get_device_info": {
+      "name": "Get Device Information",
+      "description": "Get detailed information about connected devices",
+      "fields": {
+        "device_host": {
+          "name": "Device Host",
+          "description": "IP address of specific device (optional, all devices if empty)"
+        }
+      }
+    },
+    "force_device_reconnect": {
+      "name": "Force Device Reconnect",
+      "description": "Force reconnection to a specific device",
+      "fields": {
+        "device_host": {
+          "name": "Device Host",
+          "description": "IP address of the device to reconnect"
+        }
+      }
+    },
+    "update_audio_settings": {
+      "name": "Update Audio Settings",
+      "description": "Update audio processing settings", 
+      "fields": {
+        "enable_alac": {
+          "name": "Enable ALAC",
+          "description": "Enable Apple Lossless Audio Codec support"
+        },
+        "smart_format_detection": {
+          "name": "Smart Format Detection",
+          "description": "Enable automatic audio format detection"
+        },
+        "force_format": {
+          "name": "Force Audio Format",
+          "description": "Force a specific audio format"
+        }
+      }
+    },
+    "export_configuration": {
+      "name": "Export Configuration",
+      "description": "Export current configuration for backup"
+    },
+    "import_configuration": {
+      "name": "Import Configuration",
+      "description": "Import configuration from backup",
+      "fields": {
+        "config_data": {
+          "name": "Configuration Data",
+          "description": "JSON configuration data to import"
+        }
+      }
+    },
+    "set_debug_mode": {
+      "name": "Set Debug Mode",
+      "description": "Enable or disable debug mode",
+      "fields": {
+        "enabled": {
+          "name": "Enable Debug Mode",
+          "description": "Whether to enable debug mode"
+        }
+      }
+    },
+    "generate_report": {
+      "name": "Generate Diagnostic Report",
+      "description": "Generate a diagnostic report for troubleshooting",
+      "fields": {
+        "include_logs": {
+          "name": "Include Logs",
+          "description": "Include recent log entries in the report"
+        },
+        "include_performance": {
+          "name": "Include Performance Data", 
+          "description": "Include performance metrics in the report"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "cpu_usage": {
+        "name": "CPU Usage",
+        "state": {
+          "unknown": "Unknown"
+        }
+      },
+      "memory_usage": {
+        "name": "Memory Usage",
+        "state": {
+          "unknown": "Unknown"
+        }
+      },
+      "active_streams": {
+        "name": "Active Streams",
+        "state": {
+          "unknown": "Unknown"
+        }
+      },
+      "connected_devices": {
+        "name": "Connected Devices",
+        "state": {
+          "unknown": "Unknown"
+        }
+      },
+      "packets_processed": {
+        "name": "Packets Processed",
+        "state": {
+          "unknown": "Unknown"
+        }
+      },
+      "network_errors": {
+        "name": "Network Errors",
+        "state": {
+          "unknown": "Unknown"
+        }
+      },
+      "buffer_health": {
+        "name": "Buffer Health",
+        "state": {
+          "good": "Good",
+          "fair": "Fair", 
+          "poor": "Poor",
+          "unknown": "Unknown"
+        }
+      },
+      "service_uptime": {
+        "name": "Service Uptime",
+        "state": {
+          "unknown": "Unknown"
+        }
+      }
+    },
+    "binary_sensor": {
+      "service_status": {
+        "name": "Service Status",
+        "state": {
+          "on": "Online",
+          "off": "Offline"
+        }
+      },
+      "worker_threads_enabled": {
+        "name": "Worker Threads",
+        "state": {
+          "on": "Enabled",
+          "off": "Disabled"
+        }
+      }
+    }
+  },
+  "notifications": {
+    "service_started": "AirSonos service started successfully",
+    "service_stopped": "AirSonos service stopped",
+    "service_restarted": "AirSonos service restarted successfully", 
+    "device_connected": "Device {device_name} connected",
+    "device_disconnected": "Device {device_name} disconnected",
+    "stream_started": "AirPlay stream started on {device_name}",
+    "stream_ended": "AirPlay stream ended on {device_name}",
+    "scan_complete": "Device scan complete: found {device_count} devices",
+    "device_configured": "Device {device_host} configured successfully",
+    "buffer_settings_updated": "Buffer settings updated successfully",
+    "high_cpu_usage": "High CPU usage detected: {cpu_usage}%",
+    "high_memory_usage": "High memory usage detected: {memory_mb}MB",
+    "network_error": "Network error occurred",
+    "device_recovery_started": "Attempting recovery for device {device_name}",
+    "device_recovery_success": "Recovery successful for device {device_name}",
+    "device_recovery_failed": "Recovery failed for device {device_name}",
+    "configuration_exported": "Configuration exported successfully",
+    "configuration_imported": "Configuration imported successfully",
+    "debug_mode_enabled": "Debug mode enabled",
+    "debug_mode_disabled": "Debug mode disabled",
+    "diagnostic_report_generated": "Diagnostic report generated"
+  },
+  "errors": {
+    "cannot_connect": "Cannot connect to Home Assistant",
+    "invalid_configuration": "Invalid configuration provided",
+    "device_not_found": "Device not found: {device_host}",
+    "service_not_running": "AirSonos service is not running",
+    "restart_failed": "Failed to restart service",
+    "scan_failed": "Device scan failed",
+    "configuration_failed": "Device configuration failed",
+    "buffer_update_failed": "Failed to update buffer settings",
+    "worker_thread_error": "Worker thread error occurred",
+    "health_check_failed": "Health check failed",
+    "export_failed": "Configuration export failed",
+    "import_failed": "Configuration import failed",
+    "invalid_import_data": "Invalid configuration data provided",
+    "report_generation_failed": "Failed to generate diagnostic report",
+    "websocket_error": "WebSocket communication error",
+    "permission_denied": "Permission denied"
+  }
+}
