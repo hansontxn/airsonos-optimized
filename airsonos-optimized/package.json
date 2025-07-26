@@ -15,45 +15,7 @@
     }
   ],
   "scripts": {
-    "start": "node ./lib/index.js",
-    "start:dev": "NODE_ENV=development node ./lib/index.js",
-    "start:prod": "NODE_ENV=production node ./lib/index.js",
-    "build": "node scripts/build.js",
-    "build:clean": "npm run clean && npm run build",
-    "clean": "node scripts/clean.js",
-    "test": "jest",
-    "test:unit": "jest test/unit_tests.js",
-    "test:integration": "jest test/integration_tests.js",
-    "test:performance": "jest test/performance_benchmark.js --testTimeout=60000",
-    "test:compatibility": "jest test/device_compatibility.js",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
-    "test:ci": "jest --ci --coverage --watchAll=false",
-    "test:all": "./scripts/run_tests.sh all",
-    "lint": "eslint src/ lib/ test/ scripts/ --ext .js",
-    "lint:fix": "eslint src/ lib/ test/ scripts/ --ext .js --fix",
-    "format": "prettier --write \"**/*.{js,json,md,yml,yaml}\"",
-    "format:check": "prettier --check \"**/*.{js,json,md,yml,yaml}\"",
-    "validate": "./scripts/validate_config.js",
-    "validate:config": "./scripts/validate_config.js config/options.json",
-    "verify": "node scripts/verify_installation.js",
-    "verify:full": "node scripts/verify_installation.js --full",
-    "health-check": "node ./lib/health-check.js",
-    "monitor": "node --experimental-worker ./lib/monitor.js",
-    "prepublish": "npm run build",
-    "pretest": "npm run lint",
-    "postinstall": "node scripts/post_install.js",
-    "preuninstall": "node scripts/cleanup.js --pre-uninstall",
-    "uninstall": "node scripts/cleanup.js --uninstall",
-    "release:prepare": "node scripts/prepare_release.js",
-    "release:validate": "node scripts/validate_structure.js",
-    "hacs:validate": "node scripts/validate_hacs.js",
-    "docker:build": "docker build -t airsonos-optimized .",
-    "docker:run": "docker run -p 5000:5000 -p 8099:8099 airsonos-optimized"
-  },
-  "bin": {
-    "airsonos-optimized": "./lib/index.js",
-    "airsonos": "./lib/index.js"
+    "start": "node ./lib/index.js"
   },
   "main": "./lib/index.js",
   "files": [
@@ -61,14 +23,8 @@
     "src/",
     "config/",
     "translations/",
-    "scripts/validate_config.js",
-    "scripts/verify_installation.js",
-    "scripts/cleanup.js",
-    "scripts/post_install.js",
     "README.md",
     "CHANGELOG.md",
-    "DOCS.md",
-    "LICENSE",
     "config.yaml",
     "apparmor.txt",
     "run.sh"
@@ -99,15 +55,6 @@
     "js-yaml": "^4.1.0",
     "ajv": "^8.12.0",
     "ajv-formats": "^2.1.1"
-  },
-  "devDependencies": {
-    "@babel/cli": "^7.23.0",
-    "@babel/node": "^7.22.0",
-    "jest": "^29.7.0",
-    "eslint": "^8.50.0",
-    "prettier": "^3.0.0",
-    "jscs": "^2.1.0",
-    "@types/node": "^20.8.0"
   },
   "peerDependencies": {
     "node": ">=16.0.0"
@@ -144,12 +91,6 @@
     "hassio",
     "supervisor"
   ],
-  "hacs": {
-    "name": "AirSonos Optimized",
-    "category": "addon",
-    "description": "High-performance AirPlay to Sonos bridge with Home Assistant integration",
-    "documentation": "https://github.com/HansonTan/airsonos-optimized/blob/master/README.md"
-  },
   "homeAssistant": {
     "addons": true,
     "category": "Media",
