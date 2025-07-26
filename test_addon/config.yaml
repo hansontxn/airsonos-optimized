@@ -1,0 +1,13 @@
+name: Test Add-on
+version: "1.0.0"
+slug: test_addon
+description: "Simple test add-on to verify repository"
+arch:
+  - amd64
+  - armv7
+  - aarch64
+startup: before
+boot: auto
+init: false
+options: {}
+schema: {}
