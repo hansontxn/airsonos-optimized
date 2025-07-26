@@ -1,6 +1,6 @@
 name: AirSonos Optimized
 version: "0.3.0"
-slug: airsonos-optimized
+slug: airsonos_optimized
 description: "AirTunes to Sonos devices bridge with HACS optimization"
 url: "https://github.com/hansontxn/airsonos-optimized"
 arch:
@@ -28,8 +28,3 @@ schema:
   port: "port?"
   discovery_timeout: "int(1,60)?"
   max_devices: "int(1,100)?"
-environment:
-  LOG_LEVEL: info
-  NODE_ENV: production
-  DISCOVERY_TIMEOUT: 10
-  MAX_DEVICES: 50
