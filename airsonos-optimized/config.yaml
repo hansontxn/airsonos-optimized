@@ -1,9 +1,8 @@
 name: AirSonos Optimized
 version: "0.3.0"
-slug: airsonos_optimized
+slug: airsonos-optimized
 description: "AirTunes to Sonos devices bridge with HACS optimization"
-url: "https://github.com/HansonTan/airsonos-optimized"
-codenotary: "notary@home-assistant.io"
+url: "https://github.com/hansontxn/airsonos-optimized"
 arch:
   - armhf
   - armv7
@@ -13,10 +12,10 @@ arch:
 startup: application
 boot: auto
 init: false
-map:
-  - "share:rw"
-  - "ssl:ro"
-  - "config:ro"
+host_network: true
+privilege:
+  - NET_ADMIN
+  - NET_RAW
 options:
   timeout: 5
   verbose: false
@@ -29,15 +28,8 @@ schema:
   port: "port?"
   discovery_timeout: "int(1,60)?"
   max_devices: "int(1,100)?"
-services:
-  - mqtt:need
-host_network: true
-privileged:
-  - NET_ADMIN
-  - NET_RAW
 environment:
   LOG_LEVEL: info
   NODE_ENV: production
   DISCOVERY_TIMEOUT: 10
   MAX_DEVICES: 50
-audio: true
