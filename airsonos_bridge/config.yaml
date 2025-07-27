@@ -1,5 +1,5 @@
 name: AirSonos Bridge
-version: "1.2.5"
+version: "1.2.6"
 slug: airsonos_bridge
 description: AirTunes to Sonos devices bridge with Home Assistant integration
 url: https://github.com/hansontxn/airsonos-optimized

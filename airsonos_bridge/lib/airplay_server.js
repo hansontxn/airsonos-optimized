@@ -77,14 +77,17 @@ class AirPlayServer extends EventEmitter {
       
       // Start HTTP server
       this.httpServer = this.app.listen(this.options.port, '0.0.0.0', () => {
-        console.log(`AirPlay server listening on port ${this.options.port}`);
+        const actualPort = this.httpServer.address().port;
+        this.options.port = actualPort;
+        console.log(`AirPlay HTTP server listening on port ${actualPort}`);
         
         // Advertise AirPlay service via Bonjour
+        console.log(`Publishing AirPlay service: ${this.options.serverName}`);
         this.bonjourAd = bonjour.publish({
           name: this.options.serverName,
           type: 'raop',
           protocol: 'tcp',
-          port: this.options.port,
+          port: actualPort,
           txt: {
             txtvers: '1',
             ch: '2',              // stereo
@@ -103,6 +106,10 @@ class AirPlayServer extends EventEmitter {
             am: 'AirSonos,1'      // model
           }
         });
+        
+        console.log(`✅ AirPlay service published: ${this.options.serverName} on port ${actualPort}`);
+        console.log(`   Service type: _raop._tcp`);
+        console.log(`   Device should appear in AirPlay device lists`);
         
         this.isRunning = true;
         resolve();

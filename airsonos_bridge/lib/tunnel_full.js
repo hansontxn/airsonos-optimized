@@ -139,7 +139,10 @@ class DeviceTunnel extends events.EventEmitter {
 
   start() {
     console.log(`Starting AirPlay server for ${this.deviceName}`);
-    return this.airplayServer.start();
+    return this.airplayServer.start().then(() => {
+      console.log(`AirPlay server successfully started for ${this.deviceName} on port ${this.airplayServer.options.port}`);
+      console.log(`Device should be visible as "${this.deviceName} (AirSonos)" in AirPlay device list`);
+    });
   }
 
   stop() {

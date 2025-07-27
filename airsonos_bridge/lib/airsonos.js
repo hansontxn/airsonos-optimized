@@ -77,29 +77,48 @@ class AirSonos {
 
   start() {
     return this.searchForDevices().then((devices) => {
+      console.log(`Starting AirPlay servers for ${devices.length} discovered device(s)...`);
 
-      let promises = devices.map((device) => {
+      if (devices.length === 0) {
+        console.log('No Sonos devices found. Make sure your Sonos devices are on the same network.');
+        return [];
+      }
+
+      let promises = devices.map((device, index) => {
+        console.log(`Setting up AirPlay server ${index + 1}/${devices.length} for device at ${device.host}:${device.port}`);
+        
         return DeviceTunnel.createFor(device, this.options).then((tunnel) => {
+          console.log(`✅ AirPlay server created for: ${tunnel.deviceName}`);
 
           tunnel.on('error', function(err) {
             if (err.code === 415) {
               console.error('Warning!', err.message);
               console.error('AirSonos currently does not support codecs used by applications such as iTunes or AirFoil.');
-              console.error('Progress on this issue: https://github.com/stephen/nodetunes/issues/1');
             } else {
-              console.error('Unknown error:');
-              console.error(err);
+              console.error('AirPlay server error for', tunnel.deviceName, ':', err);
             }
           });
 
-          tunnel.start();
-          this.tunnels[tunnel.device.groupId] = tunnel;
-
-          return tunnel;
+          return tunnel.start().then(() => {
+            console.log(`🎵 AirPlay server started for: ${tunnel.deviceName}`);
+            this.tunnels[tunnel.device.groupId || device.host] = tunnel;
+            return tunnel;
+          });
+        }).catch((err) => {
+          console.error(`❌ Failed to create AirPlay server for device at ${device.host}:`, err);
+          return null;
         });
       });
 
-      return Promise.all(promises);
+      return Promise.all(promises).then((tunnels) => {
+        const successfulTunnels = tunnels.filter(t => t !== null);
+        console.log(`\n🎉 Successfully created ${successfulTunnels.length} AirPlay server(s):`);
+        successfulTunnels.forEach(tunnel => {
+          console.log(`   • ${tunnel.deviceName} (AirSonos)`);
+        });
+        console.log('\nLook for these devices in your AirPlay device list on iPhone/Mac/etc.');
+        return successfulTunnels;
+      });
     });
   }
 
