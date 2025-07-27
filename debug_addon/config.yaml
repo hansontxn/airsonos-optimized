@@ -1,0 +1,7 @@
+name: "Debug Test"
+version: "0.0.1"
+slug: "debug_test"
+description: "Debug test"
+arch:
+  - "amd64"
+startup: "application"

@@ -4,7 +4,8 @@
   "maintainer": "Stephen Wan <stephen@stephenwan.net>",
   "addons": [
     "airsonos_bridge",
-    "test_addon",
-    "airsonos_simple"
+    "test_addon", 
+    "airsonos_simple",
+    "debug_addon"
   ]
 }
