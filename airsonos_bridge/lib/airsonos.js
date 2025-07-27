@@ -10,7 +10,7 @@ class AirSonos {
   }
 
   get searchForDevices() {
-    return Promise.promisify(sonos.LogicalDevice.search);
+    return Promise.promisify(sonos.search.bind(sonos));
   }
 
   start() {
