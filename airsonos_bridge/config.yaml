@@ -1,5 +1,5 @@
 name: AirSonos Bridge
-version: "1.2.1"
+version: "1.2.2"
 slug: airsonos_bridge
 description: AirTunes to Sonos devices bridge with Home Assistant integration
 url: https://github.com/hansontxn/airsonos-optimized
@@ -24,4 +24,4 @@ schema:
   manual_devices:
     - name: str
       ip: str
-      port: int(1,65535)?
+      port: int(1400,65535)?
