@@ -1,6 +1,6 @@
 let Promise = require('bluebird');
 let sonos = require('sonos');
-let DeviceTunnel = require('./tunnel_stub');
+let DeviceTunnel = require('./tunnel_full');
 
 class AirSonos {
 
