@@ -9,8 +9,19 @@ class AirSonos {
     this.options = options || {};
   }
 
-  get searchForDevices() {
-    return Promise.promisify(sonos.search.bind(sonos));
+  searchForDevices() {
+    return new Promise((resolve, reject) => {
+      const search = sonos.DeviceDiscovery();
+      search.on('DeviceAvailable', (device) => {
+        search.destroy();
+        // For now, just return the first device in an array
+        resolve([device]);
+      });
+      search.on('timeout', () => {
+        search.destroy();
+        resolve([]);
+      });
+    });
   }
 
   start() {
