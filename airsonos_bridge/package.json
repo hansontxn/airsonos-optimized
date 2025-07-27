@@ -1,6 +1,6 @@
 {
   "name": "airsonos-bridge",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "AirPlay to Sonos bridge for Home Assistant",
   "main": "./lib/index.js",
   "scripts": {
@@ -8,7 +8,9 @@
   },
   "dependencies": {
     "flags": "0.1.3",
-    "bluebird": "3.7.2"
+    "bluebird": "3.7.2",
+    "sonos": "1.12.7",
+    "@babel/polyfill": "7.12.1"
   },
   "engines": {
     "node": ">=16.0.0"
