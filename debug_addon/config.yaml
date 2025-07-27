@@ -1,7 +1,11 @@
 name: "Debug Test"
-version: "0.0.1"
+version: "0.0.2"
 slug: "debug_test"
 description: "Debug test"
 arch:
   - "amd64"
+  - "armv7"
+  - "armhf"
+  - "aarch64"
+  - "i386"
 startup: "application"
