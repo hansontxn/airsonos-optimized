@@ -6,6 +6,7 @@
     "airsonos_bridge",
     "test_addon", 
     "airsonos_simple",
-    "debug_addon"
+    "debug_addon",
+    "minimal_test"
   ]
 }

@@ -1,0 +1,14 @@
+name: Minimal Test
+version: 1.0.0
+slug: minimal_test
+description: Minimal test addon
+url: https://github.com/hansontxn/airsonos-optimized
+arch:
+  - amd64
+  - armv7
+  - armhf
+  - aarch64
+  - i386
+startup: application
+boot: manual
+init: false
