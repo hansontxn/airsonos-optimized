@@ -1,0 +1,12 @@
+name: AirSonos Working
+version: "1.0.0"
+slug: airsonos_working
+description: Working AirSonos implementation
+arch:
+  - amd64
+  - armv7
+  - armhf
+  - aarch64
+  - i386
+startup: application
+host_network: true
