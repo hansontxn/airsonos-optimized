@@ -30,13 +30,21 @@ class AirSonos {
         
         // Continue searching for more devices for a short time
         setTimeout(() => {
-          search.destroy();
+          try {
+            search.destroy();
+          } catch (err) {
+            console.log('Discovery cleanup completed');
+          }
           resolve(foundDevices);
         }, 2000);
       });
       
       search.on('timeout', () => {
-        search.destroy();
+        try {
+          search.destroy();
+        } catch (err) {
+          console.log('Discovery cleanup completed');
+        }
         console.log(`Discovery timeout - found ${foundDevices.length} device(s)`);
         resolve(foundDevices);
       });
@@ -46,7 +54,15 @@ class AirSonos {
   getManualDevices() {
     try {
       const manualDevicesEnv = process.env.MANUAL_DEVICES || '[]';
-      const manualDevicesConfig = JSON.parse(manualDevicesEnv);
+      console.log('Raw manual devices string:', manualDevicesEnv);
+      
+      // Handle Home Assistant's multi-line JSON format
+      let cleanedJson = manualDevicesEnv.replace(/\n/g, '').trim();
+      if (!cleanedJson.startsWith('[')) {
+        cleanedJson = '[' + cleanedJson + ']';
+      }
+      
+      const manualDevicesConfig = JSON.parse(cleanedJson);
       
       return manualDevicesConfig.map(device => {
         console.log(`Creating manual device: ${device.name} at ${device.ip}:${device.port || 1400}`);
@@ -54,6 +70,7 @@ class AirSonos {
       });
     } catch (error) {
       console.error('Error parsing manual devices configuration:', error);
+      console.error('Raw manual devices value:', process.env.MANUAL_DEVICES);
       return [];
     }
   }
