@@ -3,10 +3,6 @@
   "url": "https://github.com/hansontxn/airsonos-optimized",
   "maintainer": "Stephen Wan <stephen@stephenwan.net>",
   "addons": [
-    "airsonos_bridge",
-    "test_addon", 
-    "airsonos_simple",
-    "debug_addon",
-    "minimal_test"
+    "airsonos_bridge"
   ]
 }
