@@ -2,11 +2,11 @@
 
 bashio::log.info "Starting AirSonos Bridge..."
 
-# Get configuration from Home Assistant
-VERBOSE=$(bashio::config 'verbose' 'false')
-TIMEOUT=$(bashio::config 'timeout' '5')
-PORT=$(bashio::config 'port' '5000')
-MANUAL_DEVICES=$(bashio::config 'manual_devices' '[]')
+# Use default values since we removed config options
+VERBOSE="false"
+TIMEOUT="5"
+PORT="5000"
+MANUAL_DEVICES="[]"
 
 bashio::log.info "Configuration: verbose=${VERBOSE}, timeout=${TIMEOUT}, port=${PORT}"
 bashio::log.info "Manual devices: ${MANUAL_DEVICES}"
