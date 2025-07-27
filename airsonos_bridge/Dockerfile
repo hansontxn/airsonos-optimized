@@ -1,4 +1,4 @@
-ARG BUILD_FROM=ghcr.io/hassio-addons/base/amd64:15.0.7
+ARG BUILD_FROM=ghcr.io/home-assistant/base:latest
 FROM $BUILD_FROM
 
 # Install Node.js
@@ -8,10 +8,10 @@ RUN apk add --no-cache nodejs npm
 WORKDIR /app
 
 # Copy package files
-COPY package*.json ./
+COPY package.json ./
 
 # Install dependencies
-RUN npm ci --only=production
+RUN npm install --production
 
 # Copy application files  
 COPY . .
