@@ -1,22 +1,12 @@
-name: AirSonos Bridge
-version: "1.2.8"
-slug: airsonos_bridge
-description: AirTunes to Sonos devices bridge with Home Assistant integration
-url: https://github.com/hansontxn/airsonos-optimized
+name: "AirSonos Bridge"
+version: "1.2.9"
+slug: "airsonos_bridge"
+description: "AirTunes to Sonos devices bridge"
 arch:
-  - amd64
-  - armv7
-  - aarch64
-startup: application
-boot: auto
-init: false
+  - "amd64"
+  - "armv7"
+  - "aarch64"
+startup: "application"
 host_network: true
-apparmor: false
-options:
-  timeout: 5
-  verbose: false
-  port: 5000
-schema:
-  timeout: int(1,300)?
-  verbose: bool?
-  port: port?
+options: {}
+schema: {}
