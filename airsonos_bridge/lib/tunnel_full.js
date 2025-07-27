@@ -28,8 +28,14 @@ class DeviceTunnel extends events.EventEmitter {
   static createFor(device, options={}) {
     const getZoneAttrs = Promise.promisify(device.getZoneAttrs.bind(device));
 
-    return getZoneAttrs().then((zoneAttrs) => {
-      return new DeviceTunnel(device, zoneAttrs.CurrentZoneName, options);
+    return getZoneAttrs().timeout(5000).then((zoneAttrs) => {
+      const deviceName = zoneAttrs.CurrentZoneName || `Sonos Device (${device.host})`;
+      console.log(`Got zone name: ${deviceName} for device ${device.host}`);
+      return new DeviceTunnel(device, deviceName, options);
+    }).catch((err) => {
+      console.log(`Failed to get zone name for ${device.host}, using fallback name:`, err.message);
+      const fallbackName = `Sonos Device (${device.host})`;
+      return new DeviceTunnel(device, fallbackName, options);
     });
   }
 
