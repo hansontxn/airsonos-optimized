@@ -11,17 +11,51 @@ class AirSonos {
 
   searchForDevices() {
     return new Promise((resolve, reject) => {
+      // Check for manual devices first
+      const manualDevices = this.getManualDevices();
+      if (manualDevices.length > 0) {
+        console.log(`Using ${manualDevices.length} manually configured device(s)`);
+        resolve(manualDevices);
+        return;
+      }
+
+      // Fall back to automatic discovery
+      console.log('No manual devices configured, attempting automatic discovery...');
       const search = sonos.DeviceDiscovery();
+      const foundDevices = [];
+      
       search.on('DeviceAvailable', (device) => {
-        search.destroy();
-        // For now, just return the first device in an array
-        resolve([device]);
+        console.log(`Found Sonos device: ${device.host}:${device.port}`);
+        foundDevices.push(device);
+        
+        // Continue searching for more devices for a short time
+        setTimeout(() => {
+          search.destroy();
+          resolve(foundDevices);
+        }, 2000);
       });
+      
       search.on('timeout', () => {
         search.destroy();
-        resolve([]);
+        console.log(`Discovery timeout - found ${foundDevices.length} device(s)`);
+        resolve(foundDevices);
       });
     });
+  }
+
+  getManualDevices() {
+    try {
+      const manualDevicesEnv = process.env.MANUAL_DEVICES || '[]';
+      const manualDevicesConfig = JSON.parse(manualDevicesEnv);
+      
+      return manualDevicesConfig.map(device => {
+        console.log(`Creating manual device: ${device.name} at ${device.ip}:${device.port || 1400}`);
+        return new sonos.Sonos(device.ip, device.port || 1400);
+      });
+    } catch (error) {
+      console.error('Error parsing manual devices configuration:', error);
+      return [];
+    }
   }
 
   start() {

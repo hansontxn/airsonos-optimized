@@ -6,13 +6,16 @@ bashio::log.info "Starting AirSonos Bridge..."
 VERBOSE=$(bashio::config 'verbose' 'false')
 TIMEOUT=$(bashio::config 'timeout' '5')
 PORT=$(bashio::config 'port' '5000')
+MANUAL_DEVICES=$(bashio::config 'manual_devices' '[]')
 
 bashio::log.info "Configuration: verbose=${VERBOSE}, timeout=${TIMEOUT}, port=${PORT}"
+bashio::log.info "Manual devices: ${MANUAL_DEVICES}"
 
 # Set environment variables
 export VERBOSE="${VERBOSE}"
 export TIMEOUT="${TIMEOUT}"
 export PORT="${PORT}"
+export MANUAL_DEVICES="${MANUAL_DEVICES}"
 
 # Change to app directory
 cd /app
