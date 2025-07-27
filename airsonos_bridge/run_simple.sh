@@ -2,12 +2,21 @@
 
 bashio::log.info "Starting AirSonos Bridge..."
 
-# Test mode - just run a simple echo and keep running
-echo "AirSonos Bridge test mode started successfully"
-echo "Add-on is running and ready"
+# Get configuration from Home Assistant
+VERBOSE=$(bashio::config 'verbose' 'false')
+TIMEOUT=$(bashio::config 'timeout' '5')
+PORT=$(bashio::config 'port' '5000')
 
-# Keep the container running
-while true; do
-    sleep 60
-    echo "AirSonos Bridge is still running..."
-done
+bashio::log.info "Configuration: verbose=${VERBOSE}, timeout=${TIMEOUT}, port=${PORT}"
+
+# Set environment variables
+export VERBOSE="${VERBOSE}"
+export TIMEOUT="${TIMEOUT}"
+export PORT="${PORT}"
+
+# Change to app directory
+cd /app
+
+# Start the main application
+bashio::log.info "Starting AirSonos service..."
+npm start
