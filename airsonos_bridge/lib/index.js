@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-require("babel/polyfill");
+require("@babel/polyfill");
 
 let flags = require('flags');
 let AirSonos = require('./airsonos');
